@@ -1,89 +1,54 @@
 # 🔰 Lab 01 - Microsoft Sentinel Deployment
 
-## 🎯 Objective
+## Objective
 
-Deploy a Microsoft Sentinel environment in Azure to build hands-on experience with cloud-native SIEM and SOC operations.
+Deploy a Microsoft Sentinel environment in Azure for hands-on SOC Analyst training and SC-200 preparation.
 
-This lab serves as the foundation for future exercises involving log collection, threat hunting, incident investigation, analytics rules, automation, and Microsoft Defender integration.
-
----
-
-## 🏗️ Environment
+## Environment
 
 | Component | Name |
 |------------|------------|
-| Azure Subscription | Azure subscription 1 |
 | Resource Group | rg-soc-lab |
 | Log Analytics Workspace | law-soc-lab |
 | SIEM Platform | Microsoft Sentinel |
 | Region | Brazil South |
 
----
+## Architecture
 
-## 📋 Deployment Process
+Azure Subscription
+↓
+Resource Group
+↓
+Log Analytics Workspace
+↓
+Microsoft Sentinel
+↓
+Microsoft Defender Portal
 
-The following resources were deployed:
+## Result
 
-1. Azure Subscription
-2. Resource Group
-3. Log Analytics Workspace
-4. Microsoft Sentinel
+The Microsoft Sentinel workspace was successfully deployed and integrated with Microsoft Defender Portal as the primary workspace.
 
-The Microsoft Sentinel free trial was successfully activated, providing a dedicated environment for security operations training.
+## Screenshot
 
----
+<img width="1439" height="812" alt="image" src="https://github.com/user-attachments/assets/bd777a6c-75ce-4301-9513-a7bb40fc15f0" />
 
-## 📸 Screenshots
+## Skills Developed
 
-### Resource Group
-
-screenshots/resource-group.png
-
-### Log Analytics Workspace
-
-screenshots/log-analytics-workspace.png
-
-### Microsoft Sentinel Workspace
-
-screenshots/sentinel-workspace.png
-
----
-
-## 🧠 Skills Developed
-
-- Azure Resource Management
+- Resource Group Management
+- Log Analytics Workspace Deployment
 - Microsoft Sentinel Deployment
-- Log Analytics Workspace Configuration
+- Defender Portal Integration
 - Cloud SIEM Fundamentals
 - Azure Cost Management
-- Security Operations Infrastructure Setup
 
----
+## Lessons Learned
 
-## 📚 Key Concepts Learned
+- Microsoft Sentinel relies on a Log Analytics Workspace for data storage and analysis.
+- Microsoft Defender Portal integrates with Sentinel workspaces for centralized security operations.
+- Cost monitoring should be configured before deploying cloud resources.
+- A properly configured workspace serves as the foundation for future data ingestion, analytics rules, threat hunting, and incident investigation activities.
 
-- Microsoft Sentinel architecture
-- Relationship between Sentinel and Log Analytics
-- Azure resource organization using Resource Groups
-- Cost monitoring and budgeting
-- Cloud-native SIEM fundamentals
+## Outcome
 
----
-
-## ✅ Outcome
-
-Successfully deployed a Microsoft Sentinel environment in Azure and established the foundation for future SOC and threat detection labs.
-
-The environment is ready for:
-
-- KQL Queries
-- Threat Hunting
-- Analytics Rules
-- Incident Investigation
-- Data Connectors
-- Automation & Playbooks
-- SC-200 Hands-on Practice
-
----
-
-⭐ This lab is part of my ongoing Microsoft Sentinel and SC-200 Security Operations Analyst learning journey.
+Successfully deployed a Microsoft Sentinel environment and established the foundation for future SOC operations, threat hunting, and SC-200 practical exercises.
