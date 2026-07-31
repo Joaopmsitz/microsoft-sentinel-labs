@@ -84,8 +84,11 @@ Validation query:
 
 ```kusto
 AzureActivity
+| project TimeGenerated,
+          OperationNameValue,
+          ActivityStatusValue,
+          ResourceProviderValue
 | sort by TimeGenerated desc
-| take 20
 ```
 
 ---
