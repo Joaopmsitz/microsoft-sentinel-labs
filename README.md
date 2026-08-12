@@ -1,78 +1,103 @@
 # 🛡️ Microsoft Sentinel Labs
 
-Hands-on Microsoft Sentinel laboratory environment created for SC-200 preparation and Security Operations practice.
+Hands-on Microsoft Sentinel laboratory environment created for **SC-200 preparation** and **Security Operations practice**.
 
-This repository documents the deployment, configuration, monitoring, and investigation activities performed using Microsoft Sentinel and Azure services.
+This repository documents practical activities involving Microsoft Sentinel, Azure monitoring, endpoint telemetry, KQL, security event investigation, and threat hunting.
 
 ---
 
 ## 🎯 Objectives
 
-- Learn Microsoft Sentinel
-- Practice KQL Queries
-- Perform Security Monitoring
-- Investigate Security Events
-- Develop SOC Analyst Skills
-- Prepare for Microsoft SC-200
+* Learn Microsoft Sentinel
+* Practice KQL queries
+* Configure security data ingestion
+* Perform security monitoring
+* Investigate security events
+* Practice threat hunting
+* Develop SOC Analyst skills
+* Prepare for Microsoft SC-200
 
 ---
 
 ## 🧪 Lab Environment
 
-- Microsoft Sentinel
-- Azure Monitor
-- Log Analytics Workspace
-- Azure Activity Logs
-- Windows Event Logs
-- KQL (Kusto Query Language)
+* Microsoft Sentinel
+* Azure Monitor
+* Azure Monitor Agent (AMA)
+* Log Analytics Workspace
+* Data Collection Rules (DCR)
+* Windows Virtual Machine
+* Windows Security Events
+* Azure Activity Logs
+* KQL (Kusto Query Language)
 
 ---
 
 ## 📂 Labs
 
-### ✅ Lab 01 - Microsoft Sentinel Deployment
+### ✅ Lab 01 — Microsoft Sentinel Deployment
 
 Topics:
 
-- Resource Group Creation
-- Log Analytics Workspace
-- Microsoft Sentinel Deployment
-- Initial Configuration
+* Resource Group creation
+* Log Analytics Workspace
+* Microsoft Sentinel deployment
+* Initial Sentinel configuration
 
-### ✅ Lab 02 - Data Ingestion & KQL Validation
-
-Topics:
-
-- Azure Activity Logs
-- Data Connectors
-- Log Ingestion
-- KQL Queries
-- Event Validation
-
-### 🚧 Lab 03 - Endpoint Monitoring
+### ✅ Lab 02 — Data Ingestion & KQL Validation
 
 Topics:
 
-- Windows VM
-- Azure Monitor Agent
-- Windows Security Events
-- Event IDs 4624 & 4625
-- Threat Hunting
+* Azure Activity Logs
+* Data Connectors
+* Log ingestion
+* KQL queries
+* Data validation
 
-Status: In Progress
+### ✅ Lab 03 — Endpoint Monitoring
+
+Topics:
+
+* Windows Virtual Machine
+* Azure Monitor Agent (AMA)
+* Data Collection Rules (DCR)
+* Windows Security Events via AMA
+* `Microsoft-SecurityEvent` data stream
+* `SecurityEvent` table
+* Event IDs 4624, 4625 and 4688
+* Endpoint monitoring
+* KQL-based investigation
+
+**Status: Completed**
+
+### 🚧 Lab 04 — Threat Detection & Investigation
+
+Planned topics:
+
+* Analytics rules
+* Security alerts
+* KQL-based threat detection
+* Process investigation
+* Account activity investigation
+* Incident investigation
+* Threat hunting
+
+**Status: Planned**
 
 ---
 
 ## 🧠 Skills Demonstrated
 
-- Microsoft Sentinel
-- Azure Monitoring
-- KQL
-- Security Operations
-- Incident Investigation
-- Log Analysis
-- Threat Hunting
-- Security Monitoring
+* Microsoft Sentinel
+* Azure Monitoring
+* Azure Monitor Agent
+* Data Collection Rules
+* KQL
+* Security Event Analysis
+* Endpoint Monitoring
+* Incident Investigation
+* Threat Hunting
+* Security Operations
 
 ---
 
@@ -80,7 +105,9 @@ Status: In Progress
 
 This repository supports preparation for:
 
-- SC-200: Microsoft Security Operations Analyst
+* **SC-200: Microsoft Security Operations Analyst**
+
+The labs focus on practical skills related to Microsoft Sentinel, Microsoft Defender security operations, KQL, security event investigation, and threat detection.
 
 ---
 
