@@ -144,7 +144,7 @@ The incident was therefore classified as:
 
 and subsequently resolved.
 
-<img width="1439" height="813" alt="image" src="https://github.com/user-attachments/assets/05d4f707-af44-49d0-b666-f9f756f9cc91" />
+<img width="1439" height="816" alt="image" src="https://github.com/user-attachments/assets/02f769b8-1c23-4129-bc89-6860bf84faff" />
 
 This demonstrates the complete SOC workflow:
 
