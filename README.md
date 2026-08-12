@@ -54,7 +54,7 @@ Topics:
 * KQL queries
 * Data validation
 
-### ✅ Lab 03 — Endpoint Monitoring
+### 🚧 Lab 03 — Endpoint Monitoring & Threat Investigation
 
 Topics:
 
@@ -64,25 +64,12 @@ Topics:
 * Windows Security Events via AMA
 * `Microsoft-SecurityEvent` data stream
 * `SecurityEvent` table
-* Event IDs 4624, 4625 and 4688
-* Endpoint monitoring
+* Windows Security Event IDs
 * KQL-based investigation
-
-**Status: Completed**
-
-### 🚧 Lab 04 — Threat Detection & Investigation
-
-Planned topics:
-
-* Analytics rules
-* Security alerts
-* KQL-based threat detection
-* Process investigation
-* Account activity investigation
-* Incident investigation
+* Threat detection
 * Threat hunting
 
-**Status: Planned**
+**Status: In Progress**
 
 ---
 
