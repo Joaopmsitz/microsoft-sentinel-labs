@@ -144,7 +144,7 @@ The incident was therefore classified as:
 
 and subsequently resolved.
 
-![Lab 03 Process Creation Incident](images/lab03-process-creation-incident.png)
+<img width="1439" height="813" alt="image" src="https://github.com/user-attachments/assets/05d4f707-af44-49d0-b666-f9f756f9cc91" />
 
 This demonstrates the complete SOC workflow:
 
