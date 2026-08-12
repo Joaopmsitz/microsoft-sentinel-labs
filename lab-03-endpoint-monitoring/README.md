@@ -1,4 +1,4 @@
-# Lab 03 — Endpoint Monitoring with Microsoft Sentinel
+<img width="1439" height="816" alt="image" src="https://github.com/user-attachments/assets/6ab19663-9bee-4718-9f63-c4595129d954" /># Lab 03 — Endpoint Monitoring with Microsoft Sentinel
 
 ## 🎯 Objective
 
@@ -138,13 +138,13 @@ A generated incident was assigned for investigation and validated against the en
 
 The detected process creation was confirmed to be legitimate activity generated during the lab.
 
-The incident was therefore classified as:
+The incident was classified as:
 
 **Benign Positive**
 
 and subsequently resolved.
 
-<img width="1439" height="816" alt="image" src="https://github.com/user-attachments/assets/02f769b8-1c23-4129-bc89-6860bf84faff" />
+<img width="1439" height="816" alt="image" src="https://github.com/user-attachments/assets/d457c8b5-0c96-48ab-9cf4-f97d37ceb8d5" />
 
 This demonstrates the complete SOC workflow:
 
