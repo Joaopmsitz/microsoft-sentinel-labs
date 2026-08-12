@@ -1,4 +1,4 @@
-<img width="1439" height="816" alt="image" src="https://github.com/user-attachments/assets/6ab19663-9bee-4718-9f63-c4595129d954" /># Lab 03 — Endpoint Monitoring with Microsoft Sentinel
+# Lab 03 — Endpoint Monitoring with Microsoft Sentinel
 
 ## 🎯 Objective
 
