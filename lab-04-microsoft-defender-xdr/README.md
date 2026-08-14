@@ -269,7 +269,7 @@ The test was designed to validate the command-line matching logic rather than si
 The following PowerShell command intentionally contained the `IEX` keyword monitored by the analytics rule:
 
 ```powershell
-Write-Host "IEX test for Sentinel Lab 03"
+Write-Host "IEX test for Sentinel Lab 04"
 ```
 
 The resulting process creation event was observed in Microsoft Sentinel.
@@ -291,7 +291,7 @@ C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
 **Command Line**
 
 ```text
-"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Command "Write-Host 'IEX test for Sentinel Lab 03'"
+"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Command "Write-Host 'IEX test for Sentinel Lab 04'"
 ```
 
 This confirmed that command-line telemetry was available for detection and investigation.
