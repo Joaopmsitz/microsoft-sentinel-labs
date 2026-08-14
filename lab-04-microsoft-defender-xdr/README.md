@@ -2,85 +2,415 @@
 
 ## 🎯 Objective
 
-Explore Microsoft Defender XDR to investigate security alerts and incidents across Microsoft security workloads.
+Deploy and validate Microsoft Defender XDR capabilities for endpoint security monitoring and incident investigation.
 
-The lab focuses on XDR-based security operations, incident investigation, alert correlation, and understanding how Microsoft Defender XDR can provide a unified view of security threats.
+The lab focuses on onboarding a Windows Server endpoint into Microsoft Defender for Endpoint, validating endpoint telemetry, investigating process execution activity, creating and tuning a detection rule in Microsoft Sentinel, and analyzing the resulting incidents through the Microsoft Defender XDR portal.
 
 ---
 
 ## 🧪 Lab Environment
 
-* Microsoft Defender XDR
-* Microsoft Defender for Endpoint
-* Microsoft Defender for Identity
-* Microsoft Defender for Office 365
-* Microsoft Sentinel
-* Windows Virtual Machine
+- Microsoft Defender XDR
+- Microsoft Defender for Endpoint
+- Microsoft Defender for Cloud
+- Microsoft Sentinel
+- Azure Virtual Machine
+- Windows Server 2022
+- Log Analytics
+- KQL
+- SecurityEvent
+- Microsoft Defender Portal
 
 ---
 
 ## 🏗️ Architecture
 
 ```text
-Microsoft Security Workloads
+Windows Server 2022 VM
+        ↓
+Microsoft Defender for Endpoint
         ↓
 Microsoft Defender XDR
         ↓
-Alerts & Incidents
+Endpoint Telemetry
         ↓
-Incident Investigation
+Microsoft Sentinel
         ↓
-Threat Correlation
+Analytics Rule
         ↓
-Response
+Alert
+        ↓
+Incident
+        ↓
+Investigation & Response
 ```
 
 ---
 
-## 🔎 Investigation
+## ⚙️ Defender for Cloud Configuration
 
-The lab will explore how Microsoft Defender XDR aggregates and correlates security signals from different Microsoft security products.
+The Azure virtual machine was protected by Microsoft Defender for Servers.
 
-Investigation activities will include:
+The following Defender for Cloud capabilities were reviewed during the lab:
 
-* Reviewing security alerts
-* Investigating incidents
-* Examining alert evidence
-* Analyzing affected entities
-* Reviewing device and user activity
-* Understanding alert correlation
-* Identifying the attack context
+- Defender for Servers
+- Defender for Key Vault
+- Defender CSPM
+- Endpoint Protection
+- Vulnerability Assessment
+- Guest Configuration
+- Agentless Scanning
+- File Integrity Monitoring
+
+The VM was also evaluated through Microsoft Defender for Cloud security recommendations.
+
+---
+
+## 🔐 Network Security Hardening
+
+A Defender for Cloud recommendation identified exposed remote management ports on the virtual machine.
+
+The VM's Network Security Group (NSG) was reviewed.
+
+The original RDP rule allowed inbound TCP/3389 traffic from any source. The rule was modified to restrict access to the administrator's public IP address.
+
+### Before
+
+| Setting | Value |
+|----------|----------|
+| Priority | 300 |
+| Name | RDP |
+| Port | 3389 |
+| Protocol | TCP |
+| Source | Any |
+| Action | Allow |
+
+### After
+
+| Setting | Value |
+|----------|----------|
+| Priority | 300 |
+| Name | RDP |
+| Port | 3389 |
+| Protocol | TCP |
+| Source | Administrator Public IP |
+| Action | Allow |
+
+This reduced exposure to Internet-based brute-force attacks while preserving administrative access.
+
+---
+
+## 🖥️ Microsoft Defender for Endpoint Onboarding
+
+The Windows Server 2022 virtual machine was onboarded into Microsoft Defender for Endpoint.
+
+The Defender deployment package was generated from the Microsoft Defender portal and transferred to the virtual machine.
+
+After executing the onboarding process, the endpoint appeared in Microsoft Defender XDR Device Inventory.
+
+The device status changed from:
+
+```text
+Can be onboarded
+```
+
+to:
+
+```text
+Onboarded
+Active
+```
+
+The endpoint was successfully recognized as an onboarded server by Microsoft Defender XDR.
+
+---
+
+## 🔎 Endpoint Validation
+
+The Defender XDR Device Inventory was used to validate the endpoint.
+
+### Observed Device Information
+
+| Property | Value |
+|-----------|-----------|
+| Device | vm-soc-lab |
+| OS | Windows Server 2022 |
+| IP | 10.0.0.4 |
+| Platform | Azure |
+| Status | Active |
+| Onboarding | Onboarded |
+
+The endpoint subsequently became available for investigation through Microsoft Defender XDR.
+
+---
+
+## 🕵️ Advanced Hunting
+
+Microsoft Defender XDR Advanced Hunting was used to inspect endpoint process creation telemetry.
+
+The investigation confirmed that Windows process creation events contained information such as:
+
+- Computer
+- Account
+- NewProcessName
+- ParentProcessName
+- CommandLine
+
+### Example Activity
+
+**Process**
+
+```text
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+```
+
+**Parent Process**
+
+```text
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+```
+
+**Command Line**
+
+```text
+"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Command ...
+```
+
+This demonstrated that command-line information could be used to provide additional context during endpoint investigations.
+
+---
+
+## 🚨 Initial Detection Rule
+
+The original Lab 03 analytics rule detected every Windows process creation event.
+
+```kusto
+SecurityEvent
+| where EventID == 4688
+| project
+    TimeGenerated,
+    Computer,
+    Account,
+    NewProcessName,
+    ParentProcessName,
+    CommandLine
+```
+
+Although useful for telemetry validation, this approach generated significant alert noise because normal administrative activity such as:
+
+- `cmd.exe`
+- `powershell.exe`
+- Windows services
+- System processes
+
+also generated incidents.
+
+The rule therefore required tuning.
+
+---
+
+## 🛠️ Detection Rule Tuning
+
+The original rule was modified to focus on potentially suspicious command-line activity rather than every process creation event.
+
+### Rule
+
+**Name:** Suspicious Process Execution - Windows
+
+| Setting | Value |
+|----------|----------|
+| Severity | Medium |
+| Frequency | Every 5 minutes |
+| Lookup Period | Last 5 minutes |
+| Incident Creation | Enabled |
+| Alert Grouping | Enabled |
+
+### Detection Logic
+
+```kusto
+SecurityEvent
+| where EventID == 4688
+| where isnotempty(CommandLine)
+| where CommandLine has_any (
+    "-enc",
+    "-encodedcommand",
+    "DownloadString",
+    "Invoke-WebRequest",
+    "FromBase64String",
+    "IEX",
+    "mshta",
+    "rundll32",
+    "regsvr32",
+    "certutil"
+)
+| project
+    TimeGenerated,
+    Computer,
+    Account,
+    NewProcessName,
+    ParentProcessName,
+    CommandLine
+| order by TimeGenerated desc
+```
+
+The rule was designed to reduce false positives while preserving visibility into potentially suspicious execution techniques.
+
+---
+
+## 🧪 Detection Testing
+
+A controlled test was performed against the Windows Server endpoint.
+
+The following PowerShell command was intentionally executed to validate the detection logic:
+
+```powershell
+Write-Host "IEX test for Sentinel Lab 03"
+```
+
+The resulting process creation event was observed in Microsoft Sentinel.
+
+### Observed Event
+
+**Process**
+
+```text
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+```
+
+**Parent Process**
+
+```text
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+```
+
+**Command Line**
+
+```text
+"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Command "Write-Host 'IEX test for Sentinel Lab 03'"
+```
+
+This confirmed that command-line telemetry was available for detection and investigation.
 
 ---
 
 ## 🚨 Incident Investigation
 
-A security incident will be investigated using the Microsoft Defender XDR incident interface.
+The detection generated a Microsoft Sentinel incident.
 
-The investigation will focus on understanding:
+| Property | Value |
+|-----------|-----------|
+| Incident Name | Suspicious Process Execution - Windows |
+| Incident ID | 31 |
+| Severity | Medium |
+| Category | Execution |
+| Status | Active |
+| Device | vm-soc-lab |
+| User | vm-soc-lab\JoaopmsItz |
 
-* What happened
-* Which entities were affected
-* What alerts were generated
-* How the alerts were correlated
-* What evidence supports the detection
-* What response actions are available
+### Evidence
 
-Investigation findings will be documented as the lab progresses.
+**Process**
+
+```text
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+```
+
+**Parent Process**
+
+```text
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+```
+
+**Command Line**
+
+```text
+"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -Command "Write-Host 'IEX test for Sentinel Lab 03'"
+```
+
+The activity was identified as an intentional test generated during the lab rather than a real malicious execution.
+
+The incident was classified as a **Benign Positive** and subsequently resolved.
 
 ---
 
-## 🧠 Skills Demonstrated
+## 🔬 False Positive Analysis
 
-* Microsoft Defender XDR
-* Security incident investigation
-* Alert investigation
-* Alert correlation
-* Endpoint security
-* Security operations
-* Threat investigation
-* Incident response
-* Microsoft security ecosystem
+During testing, another incident was generated by:
+
+**Process**
+
+```text
+C:\Windows\System32\rundll32.exe
+```
+
+**Parent Process**
+
+```text
+C:\Windows\System32\svchost.exe
+```
+
+**Command Line**
+
+```text
+"C:\Windows\system32\rundll32.exe" /d acproxy.dll,PerformAutochkOperations
+```
+
+The event demonstrated an important SOC investigation principle:
+
+> A process name alone is not sufficient to determine whether activity is malicious.
+
+Although `rundll32.exe` is frequently associated with Living-off-the-Land techniques, the complete process context, parent process, command line, user, and surrounding activity must be evaluated before classifying the event as malicious.
+
+This activity was identified as legitimate Windows behavior and used to improve detection tuning.
+
+---
+
+## 🧠 Investigation Workflow
+
+```text
+Endpoint Telemetry
+        ↓
+Process Creation Event
+        ↓
+KQL Detection
+        ↓
+Alert
+        ↓
+Incident
+        ↓
+Entity & Evidence Analysis
+        ↓
+Command-Line Investigation
+        ↓
+False Positive / Benign Activity Assessment
+        ↓
+Incident Resolution
+```
+
+---
+
+## 🛡️ Security Operations Concepts Demonstrated
+
+- Microsoft Defender XDR
+- Microsoft Defender for Endpoint
+- Microsoft Defender for Cloud
+- Endpoint Onboarding
+- Device Inventory
+- Endpoint Telemetry
+- Advanced Hunting
+- Microsoft Sentinel Integration
+- KQL
+- Windows Event ID 4688
+- Command-Line Investigation
+- Detection Engineering
+- Analytics Rule Tuning
+- Alert Noise Reduction
+- False Positive Analysis
+- Incident Investigation
+- Incident Classification
+- Incident Resolution
+- Network Security Group Hardening
+- SOC Investigation Workflow
 
 ---
 
@@ -88,17 +418,46 @@ Investigation findings will be documented as the lab progresses.
 
 This lab supports SC-200 preparation in areas including:
 
-* Investigate incidents in Microsoft Defender XDR
-* Analyze alerts and incidents
-* Investigate entities and evidence
-* Correlate security signals
-* Respond to security incidents
-* Use Microsoft Defender security capabilities
+- Investigate incidents in Microsoft Defender XDR
+- Investigate Microsoft Defender for Endpoint alerts
+- Investigate devices and users
+- Use Advanced Hunting
+- Analyze endpoint telemetry
+- Create and tune Microsoft Sentinel analytics rules
+- Use KQL for security investigations
+- Investigate process execution
+- Analyze command-line activity
+- Reduce false positives
+- Investigate and respond to security incidents
+- Apply security recommendations
+- Perform incident response
 
 ---
 
-## 🚧 Status
+## 📸 Evidence
 
-**Planned**
+### 1. Defender XDR - Endpoint Onboarded
 
-Lab activities, investigation results, and evidence will be documented as the lab progresses.
+Screenshot showing `vm-soc-lab` successfully onboarded and active in Microsoft Defender XDR Device Inventory.
+
+```text
+evidence/
+└──<img width="1439" height="814" alt="image" src="https://github.com/user-attachments/assets/112533b6-b923-48a2-b61e-b203a734e83b" />
+```
+
+### 2. Command-Line Evidence & Resolved Incident
+
+Screenshot showing process execution evidence, command-line telemetry, and the incident resolved after investigation.
+
+```text
+evidence/
+└── <img width="1439" height="814" alt="image" src="https://github.com/user-attachments/assets/d206a69e-086e-48de-9f70-b80569db2290" />
+```
+
+---
+
+## ✅ Status
+
+**Completed**
+
+The lab successfully demonstrated Microsoft Defender XDR endpoint onboarding, endpoint telemetry investigation, Microsoft Sentinel integration, KQL-based detection, analytics rule tuning, command-line investigation, incident generation, false-positive analysis, incident classification, and incident resolution.
