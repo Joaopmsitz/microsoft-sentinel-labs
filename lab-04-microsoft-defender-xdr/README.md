@@ -192,6 +192,7 @@ SecurityEvent
     NewProcessName,
     ParentProcessName,
     CommandLine
+| order by TimeGenerated desc
 ```
 
 Event ID 4688 represents Windows process creation events when Process Creation Auditing is enabled and the events are successfully collected by Microsoft Sentinel.
@@ -217,13 +218,15 @@ The original rule was modified to focus on potentially suspicious command-line a
 
 **Name:** Suspicious Process Execution - Windows
 
-| Setting           | Value           |
-| ----------------- | --------------- |
-| Severity          | Medium          |
-| Frequency         | Every 5 minutes |
-| Lookup Period     | Last 5 minutes  |
-| Incident Creation | Enabled         |
-| Alert Grouping    | Enabled         |
+| Setting           | Value            |
+| ------------------ | ---------------- |
+| Severity           | Medium            |
+| Frequency          | Every 5 minutes   |
+| Lookup Period       | Last 10 minutes  |
+| Incident Creation  | Enabled           |
+| Alert Grouping     | Enabled           |
+
+> **Note:** Lookup Period was set wider than the query Frequency (10 minutes vs. 5 minutes) to create overlap between consecutive runs. This avoids gaps caused by ingestion delay, where an event could otherwise fall between two scheduled runs and never be evaluated.
 
 ### Detection Logic
 
@@ -302,14 +305,14 @@ This confirmed that command-line telemetry was available for detection and inves
 The detection generated a Microsoft Sentinel incident.
 
 | Property      | Value                                  |
-| ------------- | -------------------------------------- |
+| ------------- | --------------------------------------- |
 | Incident Name | Suspicious Process Execution - Windows |
 | Incident ID   | Lab-generated                          |
 | Severity      | Medium                                 |
 | Category      | Execution                              |
 | Status        | Active                                 |
 | Device        | vm-soc-lab                             |
-| User          | vm-soc-lab\JoaopmsItz                  |
+| User          | vm-soc-lab\analyst01                   |
 
 The incident was investigated by reviewing the affected device, process execution details, command-line activity, parent process, user context, and the surrounding telemetry.
 
