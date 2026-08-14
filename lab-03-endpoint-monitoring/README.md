@@ -108,11 +108,13 @@ A custom Microsoft Sentinel Analytics Rule was created to detect Windows process
 
 **Frequency:** Every 5 minutes
 
-**Lookup period:** Last 5 minutes
+**Lookup period:** Last 10 minutes
 
 **Trigger condition:** More than 0 results
 
 **Incident creation:** Enabled
+
+> **Note:** Lookup period was set wider than the query frequency (10 minutes vs. 5 minutes) to create overlap between consecutive runs, avoiding gaps caused by ingestion delay.
 
 The rule uses the following KQL query:
 
@@ -126,6 +128,7 @@ SecurityEvent
     NewProcessName,
     ParentProcessName,
     CommandLine
+| order by TimeGenerated desc
 ```
 
 The rule successfully generated Microsoft Sentinel incidents when process creation events were detected.
