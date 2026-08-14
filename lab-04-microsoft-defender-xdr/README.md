@@ -440,21 +440,18 @@ This lab supports SC-200 preparation in areas including:
 
 Screenshot showing `vm-soc-lab` successfully onboarded and active in Microsoft Defender XDR Device Inventory.
 
-```text
 evidence/
 └──<img width="1439" height="814" alt="image" src="https://github.com/user-attachments/assets/112533b6-b923-48a2-b61e-b203a734e83b" />
-```
+
 
 ### 2. Command-Line Evidence & Resolved Incident
 
 Screenshot showing process execution evidence, command-line telemetry, and the incident resolved after investigation.
 
-```text
 evidence/
 └── <img width="1439" height="814" alt="image" src="https://github.com/user-attachments/assets/d206a69e-086e-48de-9f70-b80569db2290" />
-```
 
----
+
 
 ## ✅ Status
 
