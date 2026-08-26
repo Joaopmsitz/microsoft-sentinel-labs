@@ -2,42 +2,34 @@
 
 ## 🎯 Objective
 
-Implement and validate an end-to-end Security Orchestration, Automation and Response (SOAR) workflow using Microsoft Sentinel Automation Rules and Azure Logic Apps Playbooks.
+Implement an automated incident response workflow using **Microsoft Sentinel Automation Rules** and an **Azure Logic Apps Playbook**.
 
-The lab focuses on automating incident response, integrating Microsoft Sentinel with Azure Logic Apps, configuring a managed identity, troubleshooting Azure RBAC authorization failures, and validating an automated action directly against a Sentinel incident.
-
-Unlike the previous labs, which focused primarily on monitoring, detection, and investigation, this lab extends the SOC workflow into the **response and automation stage**.
+The lab focuses on connecting a Sentinel incident to a playbook, configuring a System Assigned Managed Identity, troubleshooting an **HTTP 403 authorization failure**, and validating the automated response.
 
 ---
 
 ## 🧪 Lab Environment
 
 * Microsoft Sentinel
-* Microsoft Defender XDR
 * Azure Logic Apps
-* Azure RBAC
-* Managed Identity
 * Automation Rules
-* Playbooks
-* Log Analytics
+* Sentinel Playbooks
+* System Assigned Managed Identity
+* Azure RBAC
 * Windows Server 2022
-* Microsoft Sentinel incidents
+* Log Analytics
 * KQL
-* SecurityEvent
+* `SecurityEvent`
 
 ---
 
 ## 🔗 Integration With Previous Labs
 
-This lab builds on the Microsoft Sentinel environment and security monitoring capabilities established throughout the previous labs.
+This lab builds on the Microsoft Sentinel environment and incident workflow established in the previous labs.
 
-The Sentinel workspace, Windows endpoint telemetry, KQL-based detection, analytics rules, and incident workflow configured in the earlier labs provide the foundation for the SOAR implementation.
-
-The focus of this lab is not detection engineering itself, but the next stage of the SOC workflow: **automated incident response**.
+The previous labs provided the telemetry, detection, and incident generation used as the starting point for this automation workflow.
 
 ```text
-Microsoft Sentinel Environment
-        ↓
 Security Telemetry
         ↓
 Analytics Rule
@@ -50,45 +42,19 @@ Automation Rule
         ↓
 Logic Apps Playbook
         ↓
-Managed Identity
-        ↓
-Azure RBAC
-        ↓
-Automated Incident Action
+Automated Response
 ```
-
-Previous labs established the monitoring and detection foundation required for this workflow, while this lab extends the environment with automation and response capabilities.
-
-The main concepts introduced in this lab are:
-
-* Sentinel Automation Rules
-* Azure Logic Apps Playbooks
-* Managed Identity
-* Azure RBAC
-* Automated Incident Response
-* SOAR workflows
-* Authorization troubleshooting
 
 ---
 
 ## 🏗️ Architecture
 
 ```text
-Windows Server 2022
-        ↓
-SecurityEvent
-        ↓
-Microsoft Sentinel
-        ↓
-Analytics Rule
-        ↓
-Alert
-        ↓
-Incident
+Microsoft Sentinel Incident
         ↓
 Automation Rule
         ↓
-Azure Logic Apps Playbook
+Logic Apps Playbook
         ↓
 System Assigned Managed Identity
         ↓
@@ -96,251 +62,100 @@ Azure RBAC
         ↓
 Microsoft Sentinel
         ↓
-Automated Incident Action
+Automated Incident Comment
 ```
-
-The workflow demonstrates how Microsoft Sentinel can move from **detection to automated response** without requiring an analyst to manually perform every initial response action.
-
-The Automation Rule acts as the orchestration point between the Sentinel incident and the Logic Apps playbook.
-
-The playbook then authenticates using its managed identity and performs an action against the Sentinel incident.
-
----
-
-## 🚨 Incident-Based Automation
-
-The automation workflow was designed around Microsoft Sentinel incidents.
-
-Instead of manually opening an incident and performing the same initial response action every time, an Automation Rule was configured to automatically invoke a Logic Apps playbook when a matching incident was created.
-
-This demonstrates a fundamental SOAR concept:
-
-> Repetitive and deterministic response actions can be automated so analysts can focus on investigation and higher-value decisions.
 
 ---
 
 ## 🤖 Automation Rule
 
-A Microsoft Sentinel Automation Rule was created to connect incident creation with the Logic Apps playbook.
-
-### Automation Rule
-
-**Name:**
-
-```text
-AR - Suspicious Process Incident Enrichment
-```
+A Microsoft Sentinel Automation Rule was created to automatically execute the playbook when a new incident is created.
 
 ### Configuration
 
-| Setting  | Value                        |
-| -------- | ---------------------------- |
-| Trigger  | When Incident Is Created     |
-| Scope    | Microsoft Sentinel workspace |
-| Action   | Run Logic Apps Playbook      |
-| Playbook | `pb-soc-incident-response`   |
-
-The Automation Rule acts as the bridge between the Sentinel incident lifecycle and the automated response workflow.
-
-```text
-New Incident
-      ↓
-Automation Rule
-      ↓
-Run Playbook
-```
-
-This removes the need for an analyst to manually launch the playbook for every matching incident.
+| Setting  | Value                      |
+| -------- | -------------------------- |
+| Trigger  | When Incident Is Created   |
+| Action   | Run Logic Apps Playbook    |
+| Playbook | `pb-soc-incident-response` |
 
 ---
 
-## 🛠️ Logic Apps Playbook
+## 🛠️ Playbook
 
-An Azure Logic Apps workflow was created specifically for Microsoft Sentinel incident automation.
+### `pb-soc-incident-response`
 
-### Playbook
-
-```text
-pb-soc-incident-response
-```
-
-The Logic App was configured as a Microsoft Sentinel playbook and connected to Sentinel through the appropriate connector.
-
-### Trigger
-
-```text
-Microsoft Sentinel Incident
-```
-
-The playbook receives the incident context generated by Microsoft Sentinel.
-
-The initial response workflow was intentionally kept simple to validate the complete automation chain before introducing more complex response actions.
-
----
-
-## ⚙️ Playbook Workflow
-
-The initial playbook implemented an automated incident enrichment action.
+The Azure Logic Apps Playbook uses a **Microsoft Sentinel Incident** trigger and performs an automated incident enrichment action.
 
 ```text
 Microsoft Sentinel Incident
         ↓
-Playbook Trigger
-        ↓
-Receive Incident Context
+Microsoft Sentinel Incident Trigger
         ↓
 Add Comment To Incident (V3)
-        ↓
-Sentinel Incident Timeline
 ```
 
-The purpose of the first version was to validate that the playbook could successfully interact with the Sentinel incident.
-
-This provides a controlled foundation for expanding the playbook with additional response actions in future iterations.
+The comment was used as the initial automated response to validate the integration.
 
 ---
 
-## 🔐 Managed Identity
+## 🔐 Managed Identity & RBAC
 
-The Logic App was configured to use a **System Assigned Managed Identity**.
+The Logic App uses a **System Assigned Managed Identity** to authenticate when interacting with Microsoft Sentinel.
+
+During the first execution, the playbook failed with:
+
+```text
+HTTP 403 Forbidden
+```
+
+The error occurred while attempting to write a comment to the Sentinel incident:
+
+```text
+Microsoft.SecurityInsights/incidents/comments/write
+```
+
+The managed identity did not have the required permissions.
+
+### Resolution
+
+The required Microsoft Sentinel permissions were granted to the Logic App's managed identity through **Azure RBAC**.
 
 ```text
 Logic App
     ↓
 System Assigned Managed Identity
     ↓
-Microsoft Sentinel API
-```
-
-Using a managed identity avoids embedding credentials or secrets directly inside the Logic App.
-
-The identity is associated with the Azure resource and can be granted Azure RBAC permissions required by the playbook.
-
----
-
-## 🧪 Authorization Failure
-
-During the initial playbook execution, the workflow failed with an authorization error.
-
-The Logic App returned:
-
-```text
-HTTP 403 Forbidden
-```
-
-The failing operation was associated with writing a comment to the Sentinel incident:
-
-```text
-Microsoft.SecurityInsights/incidents/comments/write
-```
-
-The playbook itself was functioning correctly, but the identity executing the workflow did not have sufficient permissions to perform the requested Sentinel action.
-
-This provided an opportunity to troubleshoot the automation workflow from an **identity and access management perspective** rather than simply treating the playbook as a black box.
-
----
-
-## 🔎 RBAC Troubleshooting
-
-The failure was investigated by tracing the execution path:
-
-```text
-Automation Rule
-        ↓
-Logic App
-        ↓
-Managed Identity
-        ↓
-Microsoft Sentinel API
-        ↓
-403 Forbidden
-```
-
-The investigation identified that the Logic App's managed identity lacked the required Microsoft Sentinel permissions.
-
-The issue was therefore not related to:
-
-* The Sentinel incident
-* The Automation Rule trigger
-* The Logic App trigger
-* The playbook execution itself
-
-Instead, the failure occurred at the **authorization layer** when the playbook attempted to modify the incident.
-
----
-
-## 🛡️ Azure RBAC Configuration
-
-The Logic App managed identity was granted an appropriate Microsoft Sentinel RBAC role at the required scope.
-
-### Permission Model
-
-```text
-Logic App
-    │
-    └── System Assigned Managed Identity
-                │
-                ▼
-        Azure RBAC Assignment
-                │
-                ▼
-        Microsoft Sentinel
-                │
-                ▼
-        Incident Permissions
-```
-
-The RBAC assignment provided the managed identity with the permissions required for the playbook to interact with Sentinel incidents.
-
-After the role assignment propagated, the playbook was executed again.
-
----
-
-## 🔄 Permission Validation
-
-The playbook was re-tested after the RBAC correction.
-
-The execution path changed from:
-
-```text
-Incident
-   ↓
-Automation Rule
-   ↓
-Playbook
-   ↓
-Managed Identity
-   ↓
-403 Forbidden
-```
-
-to:
-
-```text
-Incident
-   ↓
-Automation Rule
-   ↓
-Playbook
-   ↓
-Managed Identity
-   ↓
-RBAC Authorization
-   ↓
+Azure RBAC
+    ↓
 Microsoft Sentinel
-   ↓
-Successful Action
 ```
 
-The successful execution confirmed that the failure was caused by insufficient authorization rather than an issue with the automation workflow itself.
+After the role assignment was applied, the playbook was executed again successfully.
 
 ---
 
-## ✅ Automated Incident Action
+## 🧪 Validation
 
-After the RBAC configuration was corrected, the playbook successfully performed its intended action against the Sentinel incident.
+The complete workflow was validated using a controlled Sentinel incident.
 
-The playbook automatically added a comment to the incident timeline.
+```text
+Incident Created
+        ↓
+Automation Rule
+        ↓
+Playbook Triggered
+        ↓
+Managed Identity
+        ↓
+RBAC Authorization
+        ↓
+Add Comment To Incident
+        ↓
+Successful Execution
+```
+
+The playbook successfully added an automated comment to the incident timeline.
 
 Example:
 
@@ -354,217 +169,83 @@ Stage:
 Initial Validation
 ```
 
-The comment provided visible evidence that the Logic App had successfully received and processed the Sentinel incident.
-
-This validated the complete automation chain.
-
 ---
 
-## 🧪 End-to-End Validation
+## 🧠 Troubleshooting
 
-A controlled security event was generated to produce a Microsoft Sentinel incident.
+The main issue encountered during the lab was an **HTTP 403 authorization failure**.
 
-The complete workflow was then observed:
-
-```text
-Controlled Test
-        ↓
-Windows Event
-        ↓
-SecurityEvent
-        ↓
-Analytics Rule
-        ↓
-Alert
-        ↓
-Incident
-        ↓
-Automation Rule
-        ↓
-Logic Apps Playbook
-        ↓
-Managed Identity
-        ↓
-Azure RBAC
-        ↓
-Microsoft Sentinel
-        ↓
-Automated Incident Comment
-```
-
-The successful comment in the incident timeline provided the final confirmation that the SOAR workflow was operational.
-
----
-
-## 🧠 Failure → Investigation → Resolution
-
-One of the main objectives of the lab was troubleshooting the automation failure.
+The troubleshooting process was:
 
 ```text
-Playbook Execution
-        ↓
-HTTP 403
-        ↓
-Permission Investigation
-        ↓
+403 Forbidden
+      ↓
+Execution Analysis
+      ↓
 Managed Identity Identified
-        ↓
-RBAC Assignment Reviewed
-        ↓
-Required Sentinel Permission Granted
-        ↓
+      ↓
+RBAC Permissions Reviewed
+      ↓
+Required Permission Granted
+      ↓
 Playbook Re-executed
-        ↓
-Successful Incident Action
+      ↓
+Success
 ```
 
-This is representative of a real-world cloud security troubleshooting workflow, where an automation failure may originate from identity, authorization, connector configuration, or resource permissions rather than from the detection itself.
-
----
-
-## 🔬 SOC Automation Workflow
-
-The lab demonstrates the transition from a traditional manual SOC workflow:
-
-```text
-Alert
-  ↓
-Analyst Opens Incident
-  ↓
-Analyst Performs Initial Action
-  ↓
-Analyst Documents Activity
-```
-
-to an automated workflow:
-
-```text
-Alert
-  ↓
-Incident
-  ↓
-Automation Rule
-  ↓
-Playbook
-  ↓
-Automated Response
-  ↓
-Incident Enrichment
-```
-
-Automation does not replace investigation.
-
-Instead, it handles predictable actions and preserves analyst time for activities that require human judgment.
+This demonstrated the importance of validating **identity and authorization** when troubleshooting Sentinel automation.
 
 ---
 
 ## 🛡️ Security Operations Concepts Demonstrated
 
 * Microsoft Sentinel
-* Security Orchestration, Automation and Response (SOAR)
+* SOAR
 * Automation Rules
 * Azure Logic Apps
 * Sentinel Playbooks
 * Managed Identity
 * Azure RBAC
-* Identity-Based Authentication
-* Incident Automation
+* Automated Incident Response
 * Incident Enrichment
-* Automated Response
-* Sentinel Incident Lifecycle
-* Security Incident Response
-* Cloud Identity and Access Management
 * Authorization Troubleshooting
 * HTTP 403 Analysis
-* Least Privilege
-* Detection-to-Response Automation
-* SOC Workflow Automation
 
 ---
 
 ## 📚 SC-200 Alignment
 
-This lab supports SC-200 preparation in areas including:
-
 * Configure Microsoft Sentinel automation
 * Create and manage Automation Rules
-* Create and configure Playbooks
-* Use Azure Logic Apps for security automation
+* Create and use Playbooks
 * Automate incident response
-* Investigate Microsoft Sentinel incidents
-* Manage incident lifecycle
-* Configure permissions required by security automation
+* Investigate Sentinel incidents
 * Troubleshoot automation failures
-* Integrate Microsoft Sentinel with automated response workflows
-* Implement SOAR capabilities
-* Automate repetitive SOC tasks
+* Implement SOAR workflows
 
 ---
 
 ## 📸 Evidence
 
-### 1. Successful Playbook Execution
+### Successful Playbook Execution
 
-Screenshot showing the successful Logic App execution after the RBAC permission was corrected.
+Screenshot showing the successful Logic App execution after correcting the RBAC permissions.
 
-<img width="1439" height="813" alt="image" src="https://github.com/user-attachments/assets/f79ebe83-f240-452f-ab59-3ffaf7a639f7" />
+<img width="1439" height="813" alt="Successful Microsoft Sentinel playbook execution" src="https://github.com/user-attachments/assets/f79ebe83-f240-452f-ab59-3ffaf7a639f7" />
 
 ---
 
 ## 📊 Lab Outcome
 
-| Component                        | Result       |
-| -------------------------------- | ------------ |
-| Sentinel Incident                | ✅            |
-| Automation Rule                  | ✅            |
-| Logic Apps Playbook              | ✅            |
-| System Assigned Managed Identity | ✅            |
-| Initial RBAC Failure             | ✅ Identified |
-| HTTP 403 Troubleshooting         | ✅            |
-| Sentinel RBAC Permission         | ✅ Corrected  |
-| Automated Incident Action        | ✅            |
-| Incident Comment                 | ✅            |
-| End-to-End SOAR Workflow         | ✅            |
-
----
-
-## 🎓 What This Lab Demonstrates
-
-The lab progressed beyond simply creating a Sentinel detection.
-
-It demonstrated the complete path from **security event to automated response**:
-
-```text
-DETECT
-  ↓
-Microsoft Sentinel Analytics Rule
-  ↓
-ALERT
-  ↓
-INCIDENT
-  ↓
-AUTOMATE
-  ↓
-Automation Rule
-  ↓
-ORCHESTRATE
-  ↓
-Logic Apps Playbook
-  ↓
-AUTHENTICATE
-  ↓
-Managed Identity
-  ↓
-AUTHORIZE
-  ↓
-Azure RBAC
-  ↓
-RESPOND
-  ↓
-Automated Sentinel Incident Action
-```
-
-The most important troubleshooting lesson was that successful SOAR implementation requires not only correct workflow logic, but also correctly configured **identity and access permissions**.
+| Component                 | Result |
+| ------------------------- | ------ |
+| Automation Rule           | ✅      |
+| Logic Apps Playbook       | ✅      |
+| Managed Identity          | ✅      |
+| RBAC Configuration        | ✅      |
+| 403 Troubleshooting       | ✅      |
+| Automated Incident Action | ✅      |
+| End-to-End Validation     | ✅      |
 
 ---
 
@@ -572,10 +253,6 @@ The most important troubleshooting lesson was that successful SOAR implementatio
 
 **Completed**
 
-The lab successfully implemented and validated a Microsoft Sentinel SOAR workflow using Automation Rules, Azure Logic Apps Playbooks, System Assigned Managed Identity, and Azure RBAC.
+Implemented and validated a Microsoft Sentinel SOAR workflow using **Automation Rules, Azure Logic Apps, Managed Identity, and Azure RBAC**.
 
-The workflow was tested end-to-end from incident creation through automated response. An initial HTTP 403 authorization failure was investigated and resolved by correcting the permissions assigned to the playbook's managed identity.
-
-The final validation confirmed that Microsoft Sentinel could automatically trigger the Logic Apps playbook and that the playbook could successfully perform an action against the incident.
-
-This lab demonstrates practical experience with **Sentinel automation, SOAR, Logic Apps, managed identities, Azure RBAC, incident response, and cloud security troubleshooting**.
+The lab included troubleshooting an initial **HTTP 403 authorization failure** and successfully automating an action against a Sentinel incident after correcting the managed identity permissions.
