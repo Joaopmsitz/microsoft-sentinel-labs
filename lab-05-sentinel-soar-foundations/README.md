@@ -1,5 +1,3 @@
-<img width="1439" height="813" alt="image" src="https://github.com/user-attachments/assets/909c3f75-6a04-44d5-8772-ab9a7cfd291d" />Claro, paezao. Agora **somente o `README.md` completo do `lab-05`**, sem mexer no README principal.
-
 # Lab 05 — Microsoft Sentinel SOAR & Automated Incident Response
 
 ## 🎯 Objective
